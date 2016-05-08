@@ -2,7 +2,7 @@ defmodule Mobilizer.CLI do
   use Application
 
   def start(_type, _args) do
-    Mobilizer.putSomething "hola mundo genial"
+    Mobilizer.Scraper.scrap
 
     # A Supervisor is returned in order to prevent an error...
     # TODO: investigate why do I need this!

@@ -16,7 +16,7 @@ defmodule Mobilizer.Mixfile do
   def application do
     [
       mod: {Mobilizer.CLI, []},
-      applications: [:logger]
+      applications: [ :httpotion, :floki, :logger ]
     ]
   end
 
@@ -30,6 +30,9 @@ defmodule Mobilizer.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:httpotion, "~> 2.2.0"},
+      {:floki, "~> 0.8"}
+    ]
   end
 end
