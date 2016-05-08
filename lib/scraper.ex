@@ -2,14 +2,10 @@ defmodule Mobilizer.Scraper do
   def scrap do
     # Initial variables
     page = "http://elespejogotico.blogspot.com.co/2007/11/relatos-y-cuentos-de-lovecraft.html"
-    selector = ".post-body li a"
 
-    body = get_page_contents(page)
+    titles = get_titles_from_url page
 
-    links = Floki.find(body, selector)
-      |> Enum.map(&anchors_to_keyword_list/1)
-
-    links
+    titles
 
     # Next Steps
     # X Convert the links into a list of dictionaries.
@@ -19,9 +15,12 @@ defmodule Mobilizer.Scraper do
     # - Convert to mobi.
   end
 
-  defp get_page_contents(page) do
-    response = HTTPotion.get page
-    response.body
+  def get_titles_from_url(url) do
+    url
+      |> HTTPotion.get
+      |> Map.get(:body)
+      |> Floki.find(".post-body li a")
+      |> Enum.map(&anchors_to_keyword_list/1)
   end
 
   @doc """
@@ -31,11 +30,12 @@ defmodule Mobilizer.Scraper do
     {_, [{"href", href}], [contents | _]} = anchor
 
     # Required to get the text inside HTML
-    text = cond do
-      is_tuple(contents) -> contents |> elem(2) |> hd
-      true -> contents
+    title = if is_tuple(contents) do
+      contents |> elem(2) |> hd
+    else
+      contents
     end
 
-    [href: href, text: text]
+    [href: href, title: title]
   end
 end
