@@ -6,10 +6,10 @@ defmodule Mobilizer.Scraper do
 
     body = getPageContents(page)
 
-    links = Floki.find(body, selector);
+    links = Floki.find(body, selector)
+      |> Enum.map(&(anchorsToKeywordList(&1)))
 
-    # Pattern matching for each link
-    # {_, [{"href", url}], [title]}
+    links
 
     # Next Steps
     # - Convert the links into a list of dictionaries.
@@ -22,5 +22,13 @@ defmodule Mobilizer.Scraper do
   defp getPageContents(page) do
     response = HTTPotion.get page
     response.body
+  end
+
+  @doc """
+  map an anchor into a keyword list with the title and the url.
+  """
+  def anchorsToKeywordList(elem) do
+    {_, [{"href", href}], [text]} = elem
+    [href: href, text: text]
   end
 end
