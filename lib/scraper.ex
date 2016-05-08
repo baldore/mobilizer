@@ -27,15 +27,8 @@ defmodule Mobilizer.Scraper do
   map an anchor into a keyword list with the title and the url.
   """
   def anchors_to_keyword_list(anchor) do
-    {_, [{"href", href}], [contents | _]} = anchor
-
-    # Required to get the text inside HTML
-    title = if is_tuple(contents) do
-      contents |> elem(2) |> hd
-    else
-      contents
-    end
-
+    {_, [{"href", href}], contents} = anchor
+    title = Floki.text(contents)
     [href: href, title: title]
   end
 end
