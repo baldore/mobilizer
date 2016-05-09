@@ -1,11 +1,20 @@
 defmodule Mobilizer.Scraper do
   def scrap do
     # Initial variables
-    page = "http://elespejogotico.blogspot.com.co/2007/11/relatos-y-cuentos-de-lovecraft.html"
+    source_page = "http://elespejogotico.blogspot.com.co/2007/11/relatos-y-cuentos-de-lovecraft.html"
 
-    titles = get_titles_from_url page
+    IO.puts "Finding links..."
 
-    titles
+    titles = get_elements_from_url(".post-body li a", source_page)
+      |> Enum.map(&anchors_to_keyword_list/1)
+
+    IO.puts "Fetching contents from each url..."
+
+    contents = titles
+      |> Enum.take(1)
+      |> Enum.map(&get_page_contents/1)
+
+    contents
 
     # Next Steps
     # X Convert the links into a list of dictionaries.
@@ -15,12 +24,24 @@ defmodule Mobilizer.Scraper do
     # - Convert to mobi.
   end
 
-  def get_titles_from_url(url) do
-    url
-      |> HTTPotion.get
-      |> Map.get(:body)
-      |> Floki.find(".post-body li a")
-      |> Enum.map(&anchors_to_keyword_list/1)
+  def get_page_contents(page_info) do
+    href = Keyword.get(page_info, :href)
+
+    IO.puts "Fething from: #{href}"
+
+    content = get_elements_from_url(".post-body", href)
+      |> Floki.text
+
+    Keyword.put(page_info, :content, content)
+  end
+
+  def get_elements_from_url(selector, url) do
+    request = HTTPotion.get(url)
+
+    case request.status_code do
+      302 -> get_elements_from_url(selector, request.headers.hdrs[:location])
+      _   -> request |> Map.get(:body) |> Floki.find(selector)
+    end
   end
 
   @doc """
