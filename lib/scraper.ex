@@ -1,4 +1,8 @@
 defmodule Mobilizer.Scraper do
+  @doc """
+  Main function. Gets all the contents from the blog and generates a
+  .mobi file for kindle.
+  """
   def scrap do
     # Initial variables
     source_page = "http://elespejogotico.blogspot.com.co/2007/11/relatos-y-cuentos-de-lovecraft.html"
@@ -18,12 +22,16 @@ defmodule Mobilizer.Scraper do
 
     # Next Steps
     # X Convert the links into a list of dictionaries.
-    # - Run through each url and get the contents of each story.
+    # X Run through each url and get the contents of each story.
     # - Create a new list of dictionaries with the stories and its titles.
     # - Create the book.
     # - Convert to mobi.
   end
 
+  @doc """
+  Get the contents of a page and returns an extended map with the contents
+  added.
+  """
   def get_page_contents(page_info) do
     href = Keyword.get(page_info, :href)
 
@@ -35,6 +43,9 @@ defmodule Mobilizer.Scraper do
     Keyword.put(page_info, :content, content)
   end
 
+  @doc """
+  Find the selected elements inside the page located in the url.
+  """
   def get_elements_from_url(selector, url) do
     request = HTTPotion.get(url)
 
