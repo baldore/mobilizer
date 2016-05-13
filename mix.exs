@@ -32,7 +32,9 @@ defmodule Mobilizer.Mixfile do
   defp deps do
     [
       {:httpotion, "~> 2.2.0"},
-      {:floki, "~> 0.8"}
+      {:floki, "~> 0.8"},
+
+      {:mix_test_watch, "~> 0.2", only: :dev}
     ]
   end
 end
