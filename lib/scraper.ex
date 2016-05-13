@@ -90,6 +90,9 @@ defmodule Mobilizer.Scraper do
   end
 
   def generate_xml(output_file, params) do
+    xml_template = "lib/templates/params.xml"
+    compiled_contents = EEx.eval_file(xml_template, params)
 
+    File.write(output_file, compiled_contents)
   end
 end
