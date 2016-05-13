@@ -4,8 +4,9 @@ defmodule Mobilizer.Scraper do
   .mobi file for kindle.
   """
   def scrap do
-    # Initial variables
+    # Options
     source_page = "http://elespejogotico.blogspot.com.co/2007/11/relatos-y-cuentos-de-lovecraft.html"
+    generated_folder = "_book"
 
     IO.puts "Finding links..."
 
@@ -18,19 +19,43 @@ defmodule Mobilizer.Scraper do
       |> Enum.take(1)
       |> Enum.map(&get_page_contents/1)
 
+
+    File.rm_rf generated_folder # Clean the generated folder
+    File.mkdir generated_folder
+
+    generate_xml "#{generated_folder}/params.xml", [
+      title: "Cuentos de H.P. Lovecraft",
+      lang: "es",
+      author: "H.P. Lovecraft",
+      publisher: "elespejogotico.blogspot.com",
+      date: get_date_now,
+      rights: "Nothing here..."
+    ]
+
     contents
 
     # Next Steps
     # X Convert the links into a list of dictionaries.
     # X Run through each url and get the contents of each story.
-    # - Create a new list of dictionaries with the stories and its titles.
+    # X Create a new list of dictionaries with the stories and its titles.
+    # - Generate the xml that will define the parameters of the book.
     # - Create the book.
     # - Convert to mobi.
   end
 
   @doc """
+  Returns the date today using the format YYYY/MM/DD
+  """
+  def get_date_now do
+    {{year, raw_month, day}, _} = :os.timestamp |> :calendar.now_to_datetime
+    month = raw_month |> to_string |> String.rjust(2, ?0)
+
+    "#{day}/#{month}/#{year}"
+  end
+
+  @doc """
   Get the contents of a page and returns an extended map with the contents
-  added.
+  ad  ded.
   """
   def get_page_contents(page_info) do
     href = Keyword.get(page_info, :href)
@@ -62,5 +87,9 @@ defmodule Mobilizer.Scraper do
     {_, [{"href", href}], contents} = anchor
     title = Floki.text(contents)
     [href: href, title: title]
+  end
+
+  def generate_xml(output_file, params) do
+
   end
 end

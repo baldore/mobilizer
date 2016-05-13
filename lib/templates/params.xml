@@ -1,6 +1,6 @@
-<dc:title>{title}</dc:title>
-<dc:language>{lang}</dc:language>
-<dc:creator opf:file-as="{author}" opf:role="aut">{author}</dc:creator>
-<dc:publisher>{publisher}/</dc:publisher>
-<dc:date opf:event="publication">{date}</dc:date>
-<dc:rights>{rights}</dc:rights>
+<dc:title><%= title %></dc:title>
+<dc:language><%= lang %></dc:language>
+<dc:creator opf:file-as="<%= author %>" opf:role="aut"><%= author %></dc:creator>
+<dc:publisher><%= publisher %>/</dc:publisher>
+<dc:date opf:event="publication"><%= date %></dc:date>
+<dc:rights><%= rights %></dc:rights>
