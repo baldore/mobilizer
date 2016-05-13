@@ -21,9 +21,9 @@ defmodule Mobilizer.Scraper do
     IO.puts "Fetching contents from each url..."
 
     titles
-      |> Enum.take(1)
+      |> Enum.take(2)
       |> Enum.map(&get_page_contents/1)
-      |> create_markdown_file("#{generated_folder}/book.epub")
+      |> create_markdown_file("#{generated_folder}/book.md")
 
     create_params_file "#{generated_folder}/params.xml", [
       title: "Cuentos de H.P. Lovecraft",
@@ -73,7 +73,10 @@ defmodule Mobilizer.Scraper do
   """
   def create_markdown_file(data, output_file) do
     file_contents = Enum.reduce data, "", fn(story, acc) ->
-      "#{story[:title]}\n#{story[:content]}\n\n" <> acc
+      """
+      # #{story[:title]}
+      #{story[:content]}
+      """ <> "\n\n\n" <> acc
     end
 
     File.write output_file, file_contents
@@ -83,7 +86,7 @@ defmodule Mobilizer.Scraper do
   Find the selected elements inside the page located in the url.
   """
   def get_elements_from_url(selector, url) do
-    request = HTTPotion.get(url)
+    request = HTTPotion.get(url, [timeout: 10000])
 
     case request.status_code do
       302 -> get_elements_from_url(selector, request.headers.hdrs[:location])
