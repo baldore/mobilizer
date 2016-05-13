@@ -8,6 +8,11 @@ defmodule Mobilizer.Scraper do
     source_page = "http://elespejogotico.blogspot.com.co/2007/11/relatos-y-cuentos-de-lovecraft.html"
     generated_folder = "_book"
 
+    IO.puts "Creating _book folder"
+
+    File.rm_rf generated_folder # Clean the generated folder
+    File.mkdir generated_folder
+
     IO.puts "Finding links..."
 
     titles = get_elements_from_url(".post-body li a", source_page)
@@ -15,15 +20,12 @@ defmodule Mobilizer.Scraper do
 
     IO.puts "Fetching contents from each url..."
 
-    contents = titles
+    titles
       |> Enum.take(1)
       |> Enum.map(&get_page_contents/1)
+      |> create_markdown_file("#{generated_folder}/book.epub")
 
-
-    File.rm_rf generated_folder # Clean the generated folder
-    File.mkdir generated_folder
-
-    generate_xml "#{generated_folder}/params.xml", [
+    create_params_file "#{generated_folder}/params.xml", [
       title: "Cuentos de H.P. Lovecraft",
       lang: "es",
       author: "H.P. Lovecraft",
@@ -31,8 +33,6 @@ defmodule Mobilizer.Scraper do
       date: get_date_now,
       rights: "Nothing here..."
     ]
-
-    contents
 
     # Next Steps
     # X Convert the links into a list of dictionaries.
@@ -69,6 +69,17 @@ defmodule Mobilizer.Scraper do
   end
 
   @doc """
+  Creates a markdown file with the passed contents.
+  """
+  def create_markdown_file(data, output_file) do
+    file_contents = Enum.reduce data, "", fn(story, acc) ->
+      "#{story[:title]}\n#{story[:content]}\n\n" <> acc
+    end
+
+    File.write output_file, file_contents
+  end
+
+  @doc """
   Find the selected elements inside the page located in the url.
   """
   def get_elements_from_url(selector, url) do
@@ -89,7 +100,11 @@ defmodule Mobilizer.Scraper do
     [href: href, title: title]
   end
 
-  def generate_xml(output_file, params) do
+  @doc """
+  Generates the params.xml needed for Pandoc to define the attributes of the
+  book.
+  """
+  def create_params_file(output_file, params) do
     xml_template = "lib/templates/params.xml"
     compiled_contents = EEx.eval_file(xml_template, params)
 
