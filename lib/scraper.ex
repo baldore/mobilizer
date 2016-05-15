@@ -21,9 +21,10 @@ defmodule Mobilizer.Scraper do
     IO.puts "Fetching contents from each url..."
 
     titles
-      |> Enum.take(2)
       |> Enum.map(&get_page_contents/1)
       |> create_markdown_file("#{generated_folder}/book.md")
+
+    IO.puts "Generating epub xml attributes"
 
     create_params_file "#{generated_folder}/params.xml", [
       title: "Cuentos de H.P. Lovecraft",
@@ -38,9 +39,13 @@ defmodule Mobilizer.Scraper do
     # X Convert the links into a list of dictionaries.
     # X Run through each url and get the contents of each story.
     # X Create a new list of dictionaries with the stories and its titles.
-    # - Generate the xml that will define the parameters of the book.
+    # X Generate the xml that will define the parameters of the book.
     # - Create the book.
     # - Convert to mobi.
+
+    # Important commands
+    # pandoc -o _book/book.epub _book/book.md --epub-cover-image=lib/assets/cover.jpg --epub-metadata=_book/params.xml
+    # kindlegen _book/book.epub
   end
 
   @doc """
